@@ -1,0 +1,32 @@
+[project]
+name = "playwright-pytest-example"
+version = "0.1.0"
+description = "Playwright Python example with pytest-playwright-json reporter"
+requires-python = ">=3.9"
+dependencies = [
+    "playwright>=1.40.0",
+    "pytest>=8.0.0",
+    "pytest-base-url>=2.0.0",
+    "pytest-playwright>=0.4.0",
+    "pytest-xdist>=3.0.0",
+    "pytest-timeout>=2.0.0",
+    "pytest-rerunfailures>=14.0",
+    "pytest-html>=4.0.0",
+]
+
+[tool.pytest.ini_options]
+addopts = [
+    "-ra",
+    "--color=yes",
+    "--browser=chromium",
+    "--video=retain-on-failure",
+    "--tracing=retain-on-failure",
+    "--screenshot=only-on-failure",
+    "--output=test-results",
+    "--playwright-json=test-results/report.json",
+    "--html=test-results/report.html",
+    "--self-contained-html",
+    "-n=10",
+    "--timeout=30"
+]
+base_url = "https://www.saucedemo.com/"
