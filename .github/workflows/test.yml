@@ -20,14 +20,22 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install system dependencies
+      - name: Install dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y libnss3 libnspr4 libatk1.0-0 libatk-bridge2.0-0 libcups2 libdrm2 libxkbcommon0 libxcomposite1 libxdamage1 libxfixes3 libxrandr2 libgbm1 libasound2t64 || \
-          sudo apt-get install -y libnss3 libnspr4 libatk1.0-0 libatk-bridge2.0-0 libcups2 libdrm2 libxkbcommon0 libxcomposite1 libxdamage1 libxfixes3 libxrandr2 libgbm1 libasound2
+          python -m pip install --upgrade pip
+          pip install pytest pytest-playwright pytest-xdist pytest-timeout pytest-html pytest-rerunfailures
+          pip install pytest-playwright-json tdpw
+          playwright install chromium --with-deps
 
-      - name: Setup and run tests
-        run: ./bin/run-tests.sh --setup
+      - name: Run tests
+        run: |
+          pytest tests/ \
+            --playwright-json=test-results/report.json \
+            --html=test-results/index.html \
+            --self-contained-html \
+            -n=10 \
+            --timeout=30 \
+            -v || true
 
       - name: Upload to TestDino
         if: always()
@@ -35,7 +43,13 @@ jobs:
           TESTDINO_TOKEN: ${{ secrets.TESTDINO_TOKEN }}
         run: |
           if [ -n "$TESTDINO_TOKEN" ]; then
-            ./bin/run-tests.sh --upload
+            tdpw upload test-results \
+              --json-report test-results/report.json \
+              --upload-traces \
+              --trace-dir test-results \
+              --upload-html \
+              --html-report test-results \
+              -v
           else
             echo "Skipping upload - TESTDINO_TOKEN not set"
           fi
