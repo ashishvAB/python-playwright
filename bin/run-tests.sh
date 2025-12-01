@@ -85,10 +85,15 @@ setup_environment() {
     echo "Installing Playwright browsers..."
     $PYTHON -m playwright install chromium
 
-    # Install pytest-playwright-json (local plugin) and tdpw (local CLI)
+    # Install pytest-playwright-json and tdpw from local packages or PyPI
     echo "Installing pytest-playwright-json and tdpw..."
-    $PYTHON -m pip install -e /Users/sahilpatel/data/code/plugin --quiet
-    $PYTHON -m pip install -e /Users/sahilpatel/data/code/testdino-py-cli --quiet
+    if [ -d "$PROJECT_DIR/packages" ] && ls "$PROJECT_DIR/packages"/*.whl 1> /dev/null 2>&1; then
+        # Install from local wheel files (CI/CD mode)
+        $PYTHON -m pip install "$PROJECT_DIR/packages"/*.whl --quiet --force-reinstall
+    else
+        # Install from PyPI (production mode)
+        $PYTHON -m pip install pytest-playwright-json tdpw --quiet
+    fi
 
     echo ""
     echo -e "${GREEN}Environment ready!${NC}"
@@ -116,7 +121,6 @@ run_tests() {
     PYTEST_ARGS=(
         "$TEST_PATH"
         "--playwright-json=$RESULTS_DIR/report.json"
-        "--playwright-json-test-results-dir=$RESULTS_DIR"
         "--html=$RESULTS_DIR/index.html"
         "--self-contained-html"
         "-n=$WORKERS"
