@@ -10,6 +10,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    environment: TESTDINO_TOKEN
 
     steps:
       - uses: actions/checkout@v4
