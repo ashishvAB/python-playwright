@@ -19,6 +19,8 @@ addopts = [
     "-ra",
     "--color=yes",
     "--browser=chromium",
+    "--browser=firefox",
+    "--browser=webkit",
     "--video=retain-on-failure",
     "--tracing=retain-on-failure",
     "--screenshot=only-on-failure",

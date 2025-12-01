@@ -83,7 +83,7 @@ setup_environment() {
 
     # Install playwright browsers
     echo "Installing Playwright browsers..."
-    $PYTHON -m playwright install chromium
+    $PYTHON -m playwright install chromium firefox webkit
 
     # Install pytest-playwright-json and tdpw from local packages or PyPI
     echo "Installing pytest-playwright-json and tdpw..."

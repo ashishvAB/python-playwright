@@ -25,7 +25,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install pytest pytest-playwright pytest-xdist pytest-timeout pytest-html pytest-rerunfailures
           pip install pytest-playwright-json tdpw
-          playwright install chromium --with-deps
+          playwright install chromium firefox webkit --with-deps
 
       - name: Run tests
         run: |
