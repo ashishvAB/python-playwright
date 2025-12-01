@@ -156,3 +156,89 @@ class TestNavigation:
         page.locator("#react-burger-menu-btn").click()
         page.locator("#logout_sidebar_link").click()
         expect(page).to_have_url(BASE_URL)
+
+
+class TestVisualComparison:
+    """Visual/Image comparison tests using Playwright screenshots."""
+
+    def test_login_page_full(self, page: Page) -> None:
+        """Capture full page screenshot of login page."""
+        page.goto(BASE_URL)
+        page.wait_for_load_state("networkidle")
+        screenshot = page.screenshot(full_page=True)
+        assert len(screenshot) > 0, "Screenshot should not be empty"
+
+    def test_screenshot_comparison_fail(self, page: Page) -> None:
+        """This test intentionally fails to generate screenshot artifacts."""
+        page.goto(BASE_URL)
+        page.wait_for_load_state("networkidle")
+        # Take screenshot
+        screenshot = page.screenshot()
+        # Intentionally fail - screenshot size won't match this arbitrary value
+        assert len(screenshot) == 12345, f"Screenshot comparison failed: expected 12345 bytes, got {len(screenshot)}"
+
+    def test_login_button_element(self, page: Page) -> None:
+        """Capture screenshot of login button element."""
+        page.goto(BASE_URL)
+        login_button = page.locator("#login-button")
+        screenshot = login_button.screenshot()
+        assert len(screenshot) > 0, "Screenshot should not be empty"
+
+    def test_login_form_element(self, page: Page) -> None:
+        """Capture screenshot of the login form container."""
+        page.goto(BASE_URL)
+        login_form = page.locator(".login_wrapper")
+        screenshot = login_form.screenshot()
+        assert len(screenshot) > 0, "Screenshot should not be empty"
+
+    def test_inventory_page_full(self, page: Page) -> None:
+        """Capture full page screenshot after login."""
+        page.goto(BASE_URL)
+        page.locator("#user-name").fill("standard_user")
+        page.locator("#password").fill("secret_sauce")
+        page.locator("#login-button").click()
+        page.wait_for_load_state("networkidle")
+        screenshot = page.screenshot(full_page=True)
+        assert len(screenshot) > 0, "Screenshot should not be empty"
+
+    def test_product_card_element(self, page: Page) -> None:
+        """Capture screenshot of first product card."""
+        page.goto(BASE_URL)
+        page.locator("#user-name").fill("standard_user")
+        page.locator("#password").fill("secret_sauce")
+        page.locator("#login-button").click()
+        page.wait_for_load_state("networkidle")
+        first_product = page.locator(".inventory_item").first
+        screenshot = first_product.screenshot()
+        assert len(screenshot) > 0, "Screenshot should not be empty"
+
+    def test_header_element(self, page: Page) -> None:
+        """Capture screenshot of header after login."""
+        page.goto(BASE_URL)
+        page.locator("#user-name").fill("standard_user")
+        page.locator("#password").fill("secret_sauce")
+        page.locator("#login-button").click()
+        header = page.locator(".header_container")
+        screenshot = header.screenshot()
+        assert len(screenshot) > 0, "Screenshot should not be empty"
+
+    def test_save_screenshots_to_files(self, page: Page) -> None:
+        """Save multiple screenshots to test-results folder."""
+        page.goto(BASE_URL)
+        page.wait_for_load_state("networkidle")
+
+        # Save login page screenshot
+        page.screenshot(path="test-results/visual-login-page.png")
+
+        # Save login button screenshot
+        page.locator("#login-button").screenshot(path="test-results/visual-login-button.png")
+
+        # Login and save inventory page
+        page.locator("#user-name").fill("standard_user")
+        page.locator("#password").fill("secret_sauce")
+        page.locator("#login-button").click()
+        page.wait_for_load_state("networkidle")
+        page.screenshot(path="test-results/visual-inventory-page.png")
+
+        # Save product card screenshot
+        page.locator(".inventory_item").first.screenshot(path="test-results/visual-product-card.png")

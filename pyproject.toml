@@ -24,7 +24,7 @@ addopts = [
     "--screenshot=only-on-failure",
     "--output=test-results",
     "--playwright-json=test-results/report.json",
-    "--html=test-results/report.html",
+    "--html=test-results/index.html",
     "--self-contained-html",
     "-n=10",
     "--timeout=30"
