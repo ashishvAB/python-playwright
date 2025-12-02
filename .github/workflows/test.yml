@@ -40,7 +40,7 @@ jobs:
       - name: Cache rerun metadata (always)
         if: always()
         run: |
-          tdpw cache --token="${{ secrets.TESTDINO_TOKEN }}"
+          tdpw cache -v --token="${{ secrets.TESTDINO_TOKEN }}" 
 
       - name: Upload to TestDino
         if: always()

@@ -26,7 +26,8 @@ jobs:
       - name: Get last failed tests using tdpw
         id: last_failed
         run: |
-          FAILED_TESTS=$(tdpw last-failed --token="${{ secrets.TESTDINO_TOKEN }}" | tail -1)
+          FAILED_TESTS=$(tdpw last-failed -v --token="${{ secrets.TESTDINO_TOKEN }}" | tail -1)
+          echo "Last failed test args: $FAILED_TESTS"
           echo "args=$FAILED_TESTS" >> $GITHUB_OUTPUT
 
       - name: Run only failed tests
