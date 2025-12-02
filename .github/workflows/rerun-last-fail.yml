@@ -1,0 +1,74 @@
+name: failed-only-reruns
+on:
+  workflow_dispatch:
+
+jobs:
+  rerun:
+    runs-on: ubuntu-latest
+    container: mcr.microsoft.com/playwright/python:latest
+    env:
+      TESTDINO_TOKEN: ${{ secrets.TESTDINO_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest pytest-playwright pytest-xdist pytest-timeout pytest-html pytest-rerunfailures
+          pip install pytest-playwright-json tdpw
+          playwright install chromium firefox webkit --with-deps
+
+
+      - name: Get last failed tests using tdpw
+        id: last_failed
+        run: |
+          FAILED_TESTS=$(tdpw last-failed --token="${{ secrets.TESTDINO_TOKEN }}" | tail -1)
+          echo "args=$FAILED_TESTS" >> $GITHUB_OUTPUT
+
+      - name: Run only failed tests
+        run: |
+          pytest tests/ \
+            --playwright-json=test-results/report.json \
+            --html=test-results/index.html \
+            --self-contained-html \
+            -n=10 \
+            --timeout=30 \
+            -v \
+            ${{ steps.last_failed.outputs.args }} || true
+
+      - name: Cache rerun metadata (always)
+        if: always()
+        run: |
+          tdpw cache --token="${{ secrets.TESTDINO_TOKEN }}"
+
+
+      - name: Upload to TestDino
+        if: always()
+        env:
+          TESTDINO_TOKEN: ${{ secrets.TESTDINO_TOKEN }}
+        run: |
+          if [ -n "$TESTDINO_TOKEN" ]; then
+            tdpw upload test-results \
+              --json-report test-results/report.json \
+              --upload-traces \
+              --trace-dir test-results \
+              --upload-html \
+              --html-report test-results \
+              -v
+          else
+            echo "Skipping upload - TESTDINO_TOKEN not set"
+          fi
+
+      - name: Upload test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: test-results/
+          retention-days: 30
