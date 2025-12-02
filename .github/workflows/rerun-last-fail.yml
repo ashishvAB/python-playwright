@@ -5,9 +5,7 @@ on:
 jobs:
   rerun:
     runs-on: ubuntu-latest
-    container: mcr.microsoft.com/playwright/python:latest
-    env:
-      TESTDINO_TOKEN: ${{ secrets.TESTDINO_TOKEN }}
+    environment: TESTDINO_TOKEN
 
     steps:
       - uses: actions/checkout@v4
@@ -56,10 +54,6 @@ jobs:
           if [ -n "$TESTDINO_TOKEN" ]; then
             tdpw upload test-results \
               --json-report test-results/report.json \
-              --upload-traces \
-              --trace-dir test-results \
-              --upload-html \
-              --html-report test-results \
               -v
           else
             echo "Skipping upload - TESTDINO_TOKEN not set"
