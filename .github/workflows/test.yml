@@ -37,6 +37,11 @@ jobs:
             --timeout=30 \
             -v || true
 
+      - name: Cache rerun metadata (always)
+        if: always()
+        run: |
+          tdpw cache --token="${{ secrets.TESTDINO_TOKEN }}"
+
       - name: Upload to TestDino
         if: always()
         env:
@@ -49,6 +54,7 @@ jobs:
           else
             echo "Skipping upload - TESTDINO_TOKEN not set"
           fi
+
 
       - name: Upload test artifacts
         if: always()
